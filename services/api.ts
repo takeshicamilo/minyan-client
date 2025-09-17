@@ -74,6 +74,11 @@ class ApiService {
     return response.data;
   }
 
+  async logout(): Promise<{ message: string }> {
+    const response = await this.api.post<{ message: string }>(API_ENDPOINTS.AUTH.LOGOUT);
+    return response.data;
+  }
+
 }
 
 export const apiService = new ApiService();

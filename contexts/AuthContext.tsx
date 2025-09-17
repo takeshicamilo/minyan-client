@@ -103,8 +103,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async (): Promise<void> => {
     try {
       setIsLoading(true);
+      
+      // Call backend logout endpoint if user is authenticated
+      if (token) {
+        try {
+          await apiService.logout();
+        } catch (error) {
+          // If logout fails on backend, still clear local data
+          console.warn('Backend logout failed, clearing local data anyway:', error);
+        }
+      }
+      
+      // Clear local auth data
       await clearAuthData();
+      
+      // Navigate to login screen
       router.replace('/login');
+      
+      Alert.alert('Logged Out', 'You have been successfully logged out.');
     } catch (error) {
       console.error('Error during logout:', error);
       Alert.alert('Logout Error', 'An error occurred while logging out');
