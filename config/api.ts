@@ -1,7 +1,8 @@
 // API Configuration
 export const API_CONFIG = {
   // Development URL - change this to your backend server URL
-  DEV_BASE_URL: 'http://localhost:3000',
+  // Use your local IP address instead of localhost for React Native
+  DEV_BASE_URL: 'http://192.168.1.9:3000',
   
   // Production URL - replace with your production backend URL
   PROD_BASE_URL: 'https://your-production-api.com',
