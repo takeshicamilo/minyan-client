@@ -1,5 +1,12 @@
 import { API_CONFIG, API_ENDPOINTS, getApiBaseUrl } from '@/config/api';
 import { ApiError, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '@/types/auth';
+import {
+    CreateMinyanRequest,
+    CreateMinyanResponse,
+    GetNearbyMinyanimRequest,
+    MyMinyanimResponse,
+    NearbyMinyanimResponse
+} from '@/types/minyan';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosError, AxiosInstance } from 'axios';
 
@@ -76,6 +83,43 @@ class ApiService {
 
   async logout(): Promise<{ message: string }> {
     const response = await this.api.post<{ message: string }>(API_ENDPOINTS.AUTH.LOGOUT);
+    return response.data;
+  }
+
+  // Minyan endpoints
+  async createMinyan(minyanData: CreateMinyanRequest): Promise<CreateMinyanResponse> {
+    const response = await this.api.post<CreateMinyanResponse>(API_ENDPOINTS.MINYAN.CREATE, minyanData);
+    return response.data;
+  }
+
+  async getNearbyMinyanim(params: GetNearbyMinyanimRequest): Promise<NearbyMinyanimResponse> {
+    // Use different parameter names for the simple endpoint
+    const queryParams = {
+      lat: params.latitude,
+      lng: params.longitude,
+      r: params.radius,
+    };
+    const response = await this.api.get<NearbyMinyanimResponse>(API_ENDPOINTS.MINYAN.NEARBY, { params: queryParams });
+    return response.data;
+  }
+
+  async getMyMinyanim(): Promise<MyMinyanimResponse> {
+    const response = await this.api.get<MyMinyanimResponse>(API_ENDPOINTS.MINYAN.MY_MINYANIM);
+    return response.data;
+  }
+
+  async joinMinyan(minyanId: number): Promise<{ message: string; participant: any }> {
+    const response = await this.api.post<{ message: string; participant: any }>(API_ENDPOINTS.MINYAN.JOIN(minyanId));
+    return response.data;
+  }
+
+  async leaveMinyan(minyanId: number): Promise<{ message: string }> {
+    const response = await this.api.delete<{ message: string }>(API_ENDPOINTS.MINYAN.LEAVE(minyanId));
+    return response.data;
+  }
+
+  async deleteMinyan(minyanId: number): Promise<{ message: string }> {
+    const response = await this.api.delete<{ message: string }>(API_ENDPOINTS.MINYAN.DELETE(minyanId));
     return response.data;
   }
 

@@ -2,7 +2,7 @@
 export const API_CONFIG = {
   // Development URL - change this to your backend server URL
   // Use your local IP address instead of localhost for React Native
-  DEV_BASE_URL: 'http://192.168.1.9:3000',
+  DEV_BASE_URL: 'http://192.168.137.14:3000',
   
   // Production URL - replace with your production backend URL
   PROD_BASE_URL: 'https://your-production-api.com',
@@ -29,6 +29,14 @@ export const API_ENDPOINTS = {
     REGISTER: '/auth/register',
     PROFILE: '/auth/profile',
     LOGOUT: '/auth/logout',
+  },
+  MINYAN: {
+    CREATE: '/minyan',
+    NEARBY: '/minyan/simple-nearby',
+    MY_MINYANIM: '/minyan/my',
+    JOIN: (id: number) => `/minyan/${id}/join`,
+    LEAVE: (id: number) => `/minyan/${id}/leave`,
+    DELETE: (id: number) => `/minyan/${id}`,
   },
   // Add more endpoints as needed
 } as const;
