@@ -1,110 +1,305 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Logo } from '@/components/Logo';
+import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/contexts/AuthContext';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import {
+  getMaxContentWidth,
+  getResponsiveFontSize,
+  getResponsiveSpacing,
+  SCREEN_DIMENSIONS
+} from '@/utils/responsive';
 
-export default function TabTwoScreen() {
+export default function ProfileScreen() {
+  const { user, logout, isLoading } = useAuth();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+  const isTablet = SCREEN_DIMENSIONS.isTablet;
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const dynamicStyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colorScheme === 'dark' ? '#0a0a0a' : '#fafafa',
+    },
+    scrollContainer: {
+      flexGrow: 1,
+    },
+    content: {
+      width: '100%',
+      maxWidth: getMaxContentWidth(),
+      paddingHorizontal: getResponsiveSpacing(24),
+      paddingTop: getResponsiveSpacing(40),
+      paddingBottom: getResponsiveSpacing(40),
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: getResponsiveSpacing(40),
+    },
+    profileCard: {
+      backgroundColor: colors.background,
+      borderRadius: 16,
+      padding: getResponsiveSpacing(24),
+      marginBottom: getResponsiveSpacing(24),
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    profileHeader: {
+      alignItems: 'center',
+      marginBottom: getResponsiveSpacing(24),
+    },
+    profileName: {
+      fontSize: getResponsiveFontSize(isTablet ? 28 : 24),
+      fontWeight: '700',
+      color: colors.text,
+      marginTop: getResponsiveSpacing(16),
+      textAlign: 'center',
+    },
+    profileEmail: {
+      fontSize: getResponsiveFontSize(16),
+      color: colors.tabIconDefault,
+      marginTop: getResponsiveSpacing(8),
+      textAlign: 'center',
+    },
+    infoSection: {
+      marginBottom: getResponsiveSpacing(24),
+    },
+    sectionTitle: {
+      fontSize: getResponsiveFontSize(18),
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: getResponsiveSpacing(16),
+    },
+    infoItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: getResponsiveSpacing(12),
+      borderBottomWidth: 1,
+      borderBottomColor: colorScheme === 'dark' ? '#374151' : '#e5e7eb',
+    },
+    infoIcon: {
+      marginRight: getResponsiveSpacing(12),
+      width: 24,
+      alignItems: 'center',
+    },
+    infoLabel: {
+      fontSize: getResponsiveFontSize(14),
+      fontWeight: '500',
+      color: colors.tabIconDefault,
+      minWidth: 80,
+    },
+    infoValue: {
+      fontSize: getResponsiveFontSize(14),
+      color: colors.text,
+      flex: 1,
+    },
+    statsSection: {
+      backgroundColor: colors.background,
+      borderRadius: 16,
+      padding: getResponsiveSpacing(24),
+      marginBottom: getResponsiveSpacing(24),
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    statItem: {
+      alignItems: 'center',
+    },
+    statNumber: {
+      fontSize: getResponsiveFontSize(isTablet ? 32 : 28),
+      fontWeight: '700',
+      color: colors.tint,
+    },
+    statLabel: {
+      fontSize: getResponsiveFontSize(14),
+      color: colors.tabIconDefault,
+      marginTop: getResponsiveSpacing(4),
+      textAlign: 'center',
+    },
+    logoutButton: {
+      backgroundColor: '#FF3B30',
+      borderRadius: 12,
+      paddingVertical: getResponsiveSpacing(16),
+      paddingHorizontal: getResponsiveSpacing(24),
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: getResponsiveSpacing(16),
+    },
+    logoutButtonText: {
+      color: 'white',
+      fontSize: getResponsiveFontSize(16),
+      fontWeight: '600',
+      marginLeft: getResponsiveSpacing(8),
+    },
+  });
+
+  if (!user) {
+    return (
+      <SafeAreaView style={dynamicStyles.container}>
+        <View style={[dynamicStyles.content, { alignItems: 'center', justifyContent: 'center' }]}>
+          <Text style={[dynamicStyles.profileName, { color: colors.tabIconDefault }]}>
+            No user data available
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={dynamicStyles.container}>
+      <ScrollView
+        contentContainerStyle={dynamicStyles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={dynamicStyles.content}>
+          {/* Header with Logo */}
+          <View style={dynamicStyles.header}>
+            <Logo size={isTablet ? 100 : 80} />
+            <Text style={dynamicStyles.profileName}>Profile</Text>
+          </View>
+
+          {/* Profile Card */}
+          <View style={dynamicStyles.profileCard}>
+            <View style={dynamicStyles.profileHeader}>
+              <View style={{
+                width: 80,
+                height: 80,
+                borderRadius: 40,
+                backgroundColor: colors.tint,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <Text style={{
+                  fontSize: getResponsiveFontSize(32),
+                  fontWeight: '700',
+                  color: 'white',
+                }}>
+                  {user.email.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+              <Text style={dynamicStyles.profileName}>
+                {user.email.split('@')[0]}
+              </Text>
+              <Text style={dynamicStyles.profileEmail}>
+                {user.email}
+              </Text>
+            </View>
+
+            {/* User Information */}
+            <View style={dynamicStyles.infoSection}>
+              <Text style={dynamicStyles.sectionTitle}>Account Information</Text>
+              
+              <View style={dynamicStyles.infoItem}>
+                <View style={dynamicStyles.infoIcon}>
+                  <Ionicons name="mail" size={20} color={colors.tint} />
+                </View>
+                <Text style={dynamicStyles.infoLabel}>Email:</Text>
+                <Text style={dynamicStyles.infoValue}>{user.email}</Text>
+              </View>
+
+              <View style={dynamicStyles.infoItem}>
+                <View style={dynamicStyles.infoIcon}>
+                  <Ionicons name="call" size={20} color={colors.tint} />
+                </View>
+                <Text style={dynamicStyles.infoLabel}>Phone:</Text>
+                <Text style={dynamicStyles.infoValue}>{user.phone}</Text>
+              </View>
+
+              <View style={[dynamicStyles.infoItem, { borderBottomWidth: 0 }]}>
+                <View style={dynamicStyles.infoIcon}>
+                  <Ionicons name="calendar" size={20} color={colors.tint} />
+                </View>
+                <Text style={dynamicStyles.infoLabel}>Joined:</Text>
+                <Text style={dynamicStyles.infoValue}>
+                  {formatDate(user.createdAt)}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Stats Section */}
+          <View style={dynamicStyles.statsSection}>
+            <Text style={dynamicStyles.sectionTitle}>Your Activity</Text>
+            <View style={dynamicStyles.statsGrid}>
+              <View style={dynamicStyles.statItem}>
+                <Text style={dynamicStyles.statNumber}>0</Text>
+                <Text style={dynamicStyles.statLabel}>Minyanim{'\n'}Created</Text>
+              </View>
+              <View style={dynamicStyles.statItem}>
+                <Text style={dynamicStyles.statNumber}>0</Text>
+                <Text style={dynamicStyles.statLabel}>Minyanim{'\n'}Joined</Text>
+              </View>
+              <View style={dynamicStyles.statItem}>
+                <Text style={dynamicStyles.statNumber}>0</Text>
+                <Text style={dynamicStyles.statLabel}>Prayers{'\n'}Attended</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Logout Button */}
+          <TouchableOpacity
+            style={dynamicStyles.logoutButton}
+            onPress={handleLogout}
+            disabled={isLoading}
+          >
+            <Ionicons name="log-out" size={20} color="white" />
+            <Text style={dynamicStyles.logoutButtonText}>
+              {isLoading ? 'Logging out...' : 'Logout'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
