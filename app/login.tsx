@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FormButton } from '@/components/forms/FormButton';
 import { FormInput } from '@/components/forms/FormInput';
+import { Logo } from '@/components/Logo';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -158,6 +159,7 @@ export default function LoginScreen() {
           <View style={dynamicStyles.content}>
             {/* Header */}
             <View style={dynamicStyles.header}>
+              <Logo size={isTablet ? 140 : 120} style={{ marginBottom: getResponsiveSpacing(20) }} />
               <Text style={dynamicStyles.title}>Welcome Back</Text>
               <Text style={dynamicStyles.subtitle}>
                 Sign in to your account to continue
