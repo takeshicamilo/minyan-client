@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     ScrollView,
@@ -14,6 +14,8 @@ import { Logo } from '@/components/Logo';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { apiService } from '@/services/api';
+import { MyMinyanimResponse } from '@/types/minyan';
 import {
     getMaxContentWidth,
     getResponsiveFontSize,
@@ -26,6 +28,33 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const isTablet = SCREEN_DIMENSIONS.isTablet;
+
+  // Activity data state
+  const [activityData, setActivityData] = useState<MyMinyanimResponse | null>(null);
+  const [activityLoading, setActivityLoading] = useState(false);
+  const [activityError, setActivityError] = useState<string | null>(null);
+
+  // Fetch user activity data
+  useEffect(() => {
+    const fetchActivityData = async () => {
+      if (!user) return;
+      
+      setActivityLoading(true);
+      setActivityError(null);
+      
+      try {
+        const data = await apiService.getMyMinyanim();
+        setActivityData(data);
+      } catch (error: any) {
+        console.error('Error fetching activity data:', error);
+        setActivityError(error.message || 'Failed to load activity data');
+      } finally {
+        setActivityLoading(false);
+      }
+    };
+
+    fetchActivityData();
+  }, [user]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -197,6 +226,35 @@ export default function ProfileScreen() {
       fontWeight: '600',
       marginLeft: getResponsiveSpacing(8),
     },
+    loadingContainer: {
+      alignItems: 'center',
+      paddingVertical: getResponsiveSpacing(20),
+    },
+    loadingText: {
+      fontSize: getResponsiveFontSize(16),
+      color: colors.tabIconDefault,
+    },
+    errorContainer: {
+      alignItems: 'center',
+      paddingVertical: getResponsiveSpacing(20),
+    },
+    errorText: {
+      fontSize: getResponsiveFontSize(14),
+      color: '#FF3B30',
+      textAlign: 'center',
+      marginBottom: getResponsiveSpacing(12),
+    },
+    retryButton: {
+      backgroundColor: colors.tint,
+      paddingHorizontal: getResponsiveSpacing(16),
+      paddingVertical: getResponsiveSpacing(8),
+      borderRadius: 8,
+    },
+    retryButtonText: {
+      color: 'white',
+      fontSize: getResponsiveFontSize(14),
+      fontWeight: '600',
+    },
   });
 
   if (!user) {
@@ -278,20 +336,46 @@ export default function ProfileScreen() {
           {/* Stats Section */}
           <View style={dynamicStyles.statsSection}>
             <Text style={dynamicStyles.sectionTitle}>Your Activity</Text>
-            <View style={dynamicStyles.statsGrid}>
-              <View style={dynamicStyles.statItem}>
-                <Text style={dynamicStyles.statNumber}>0</Text>
-                <Text style={dynamicStyles.statLabel}>Minyanim{'\n'}Created</Text>
+            {activityLoading ? (
+              <View style={dynamicStyles.loadingContainer}>
+                <Text style={dynamicStyles.loadingText}>Loading activity...</Text>
               </View>
-              <View style={dynamicStyles.statItem}>
-                <Text style={dynamicStyles.statNumber}>0</Text>
-                <Text style={dynamicStyles.statLabel}>Minyanim{'\n'}Joined</Text>
+            ) : activityError ? (
+              <View style={dynamicStyles.errorContainer}>
+                <Text style={dynamicStyles.errorText}>{activityError}</Text>
+                <TouchableOpacity
+                  style={dynamicStyles.retryButton}
+                  onPress={() => {
+                    setActivityError(null);
+                    // Trigger refetch by updating a dependency
+                    setActivityData(null);
+                  }}
+                >
+                  <Text style={dynamicStyles.retryButtonText}>Retry</Text>
+                </TouchableOpacity>
               </View>
-              <View style={dynamicStyles.statItem}>
-                <Text style={dynamicStyles.statNumber}>0</Text>
-                <Text style={dynamicStyles.statLabel}>Prayers{'\n'}Attended</Text>
+            ) : (
+              <View style={dynamicStyles.statsGrid}>
+                <View style={dynamicStyles.statItem}>
+                  <Text style={dynamicStyles.statNumber}>
+                    {activityData?.organized?.length || 0}
+                  </Text>
+                  <Text style={dynamicStyles.statLabel}>Minyanim{'\n'}Created</Text>
+                </View>
+                <View style={dynamicStyles.statItem}>
+                  <Text style={dynamicStyles.statNumber}>
+                    {activityData?.participating?.length || 0}
+                  </Text>
+                  <Text style={dynamicStyles.statLabel}>Minyanim{'\n'}Joined</Text>
+                </View>
+                <View style={dynamicStyles.statItem}>
+                  <Text style={dynamicStyles.statNumber}>
+                    {(activityData?.organized?.length || 0) + (activityData?.participating?.length || 0)}
+                  </Text>
+                  <Text style={dynamicStyles.statLabel}>Total{'\n'}Minyanim</Text>
+                </View>
               </View>
-            </View>
+            )}
           </View>
 
           {/* Logout Button */}
