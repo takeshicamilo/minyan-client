@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,10 +15,10 @@ import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {
-  getMaxContentWidth,
-  getResponsiveFontSize,
-  getResponsiveSpacing,
-  SCREEN_DIMENSIONS
+    getMaxContentWidth,
+    getResponsiveFontSize,
+    getResponsiveSpacing,
+    SCREEN_DIMENSIONS
 } from '@/utils/responsive';
 
 export default function ProfileScreen() {
@@ -65,6 +65,7 @@ export default function ProfileScreen() {
     },
     scrollContainer: {
       flexGrow: 1,
+      alignItems: 'center',
     },
     content: {
       width: '100%',
@@ -72,6 +73,7 @@ export default function ProfileScreen() {
       paddingHorizontal: getResponsiveSpacing(24),
       paddingTop: getResponsiveSpacing(40),
       paddingBottom: getResponsiveSpacing(40),
+      alignSelf: 'center',
     },
     header: {
       alignItems: 'center',
@@ -92,17 +94,30 @@ export default function ProfileScreen() {
       alignItems: 'center',
       marginBottom: getResponsiveSpacing(24),
     },
+    profileIcon: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      backgroundColor: colors.tint,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: getResponsiveSpacing(16),
+      shadowColor: colors.tint,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 8,
+    },
     profileName: {
       fontSize: getResponsiveFontSize(isTablet ? 28 : 24),
       fontWeight: '700',
       color: colors.text,
-      marginTop: getResponsiveSpacing(16),
+      marginBottom: getResponsiveSpacing(8),
       textAlign: 'center',
     },
     profileEmail: {
       fontSize: getResponsiveFontSize(16),
       color: colors.tabIconDefault,
-      marginTop: getResponsiveSpacing(8),
       textAlign: 'center',
     },
     infoSection: {
@@ -212,21 +227,13 @@ export default function ProfileScreen() {
           {/* Profile Card */}
           <View style={dynamicStyles.profileCard}>
             <View style={dynamicStyles.profileHeader}>
-              <View style={{
-                width: 80,
-                height: 80,
-                borderRadius: 40,
-                backgroundColor: colors.tint,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <Text style={{
-                  fontSize: getResponsiveFontSize(32),
-                  fontWeight: '700',
-                  color: 'white',
-                }}>
-                  {user.email.charAt(0).toUpperCase()}
-                </Text>
+              {/* User Icon */}
+              <View style={dynamicStyles.profileIcon}>
+                <Ionicons 
+                  name="person" 
+                  size={50} 
+                  color="white" 
+                />
               </View>
               <Text style={dynamicStyles.profileName}>
                 {user.email.split('@')[0]}
