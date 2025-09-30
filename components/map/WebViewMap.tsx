@@ -84,7 +84,9 @@ function WebViewMap({ minyanim, userLocation, onMarkerPress, onMapPress }: WebVi
 
             function initMap() {
                 // Initialize map with a default view (will be updated when user location is received)
-                map = L.map('map').setView([0, 0], 2);
+                map = L.map('map', {
+                    attributionControl: false
+                }).setView([0, 0], 2);
                 
                 // Add OpenStreetMap tiles
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
